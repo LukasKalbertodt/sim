@@ -30,7 +30,7 @@ impl GameState {
     pub fn edge_state(&self, id: EdgeId) -> EdgeState {
         // First we shift the bits to the right so that the relevant two bits
         // are the LSBs. Then we mask of the other stuff.
-        match (self.encoded >> (id.0 * 2)) & 0b11 {
+        match (self.encoded >> (id.id() * 2)) & 0b11 {
             0 => EdgeState::None,
             1 => EdgeState::Red,
             2 => EdgeState::Blue,
@@ -50,8 +50,8 @@ impl GameState {
         // shifted_bits:         |  00 10 00 00 00
         //                     -------------------------
         // result:                  ee 10 cc bb aa
-        let mask = !(0b11 << (id.0 * 2));
-        let shifted_bits = bits << (id.0 * 2);
+        let mask = !(0b11 << (id.id() * 2));
+        let shifted_bits = bits << (id.id() * 2);
         self.encoded = (self.encoded & mask) | shifted_bits;
     }
 /*
@@ -124,7 +124,7 @@ impl EdgeId {
 
     /// Returns the edge between the two given vertices.
     pub fn between(a: VertexId, b: VertexId) -> Self {
-        match (a.0, b.0) {
+        match (a.id(), b.id()) {
             (0, 1) | (1, 0) => Self::new(0),
             (0, 2) | (2, 0) => Self::new(1),
             (0, 3) | (3, 0) => Self::new(2),
