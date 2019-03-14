@@ -44,13 +44,26 @@ impl State for SimDisplay {
 
         window.clear(BACKGROUND_COLOR)?;
 
+        // We have a flat-top hexagon:
+        //
+        //       _____
+        //      /     \
+        //     /       \
+        //     \       /
+        //      \_____/
+        //
+        // We want a margin of 50 on each side. Since our canvas has the size
+        // 1000, that means our outer radius R (the bigger one, from the center
+        // to the points) is (1000 - 2 * 50) / 2 = 450. The inner radius r
+        // (perpendicular to the edges of the hexagon) is calculates as r =
+        // sqrt(3)/2 * R ≈ 390.
         let points = [
-            (350, 250),
-            (650, 250),
-            (800, 500),
-            (650, 750),
-            (350, 750),
-            (200, 500),
+            (275, 110),
+            (725, 110),
+            (950, 500),
+            (725, 890),
+            (275, 890),
+            ( 50, 500),
         ];
 
         // Draw all edges
