@@ -3,10 +3,10 @@ use quicksilver::{
     lifecycle::{Settings, run_with},
 };
 
-use crate::gfx::GuiGame;
+use crate::gui::GuiGame;
 
 mod game;
-mod gfx;
+mod gui;
 mod player;
 
 
