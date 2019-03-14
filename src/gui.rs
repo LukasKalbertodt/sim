@@ -56,6 +56,7 @@ pub(crate) struct GuiGame {
     player_blue: Option<Box<dyn Player>>,
 
     reds_turn: bool,
+    game_end: bool,
 
     hovered_edge: Option<EdgeId>,
 }
@@ -71,6 +72,7 @@ impl GuiGame {
             player_blue,
 
             reds_turn: true,
+            game_end: false,
 
             hovered_edge: None,
         }
@@ -79,6 +81,10 @@ impl GuiGame {
     /// Checks if we are waiting for user input. This is the case when it's a
     /// `None` player's turn.
     fn waiting_for_input(&self) -> bool {
+        if self.game_end {
+            return false;
+        }
+
         if self.reds_turn {
             self.player_red.is_none()
         } else {
@@ -97,10 +103,14 @@ impl GuiGame {
 
     /// Colors the given edge in the color of the active player.
     fn execute_move(&mut self, edge: EdgeId) {
+        // Check if the game ends
+        if self.state.would_create_triangle(edge, self.active_color()) {
+            let winner = if self.reds_turn { "Blue" } else { "Red" };
+            println!("Player {} won!", winner);
+            self.game_end = true;
+        }
+
         self.state.set_edge(edge, self.active_color());
-
-        // TODO: check win condition
-
         self.reds_turn = !self.reds_turn;
     }
 }
@@ -115,15 +125,17 @@ impl State for GuiGame {
 
     // Is called in regular intervals
     fn update(&mut self, _: &mut Window) -> Result<(), Error> {
-        let player = if self.reds_turn {
-            self.player_red.as_mut().map(|b| &mut **b)
-        } else {
-            self.player_blue.as_mut().map(|b| &mut **b)
-        };
+        if !self.game_end {
+            let player = if self.reds_turn {
+                self.player_red.as_mut().map(|b| &mut **b)
+            } else {
+                self.player_blue.as_mut().map(|b| &mut **b)
+            };
 
-        if let Some(player) = player {
-            let edge = player.get_move(&self.state);
-            self.execute_move(edge);
+            if let Some(player) = player {
+                let edge = player.get_move(&self.state);
+                self.execute_move(edge);
+            }
         }
 
         Ok(())
