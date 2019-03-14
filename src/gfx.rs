@@ -13,7 +13,7 @@ use quicksilver::{
 
 
 use crate::{
-    GameState, EdgeId, EdgeState,
+    game::{GameState, EdgeId, EdgeState},
 };
 
 
@@ -93,8 +93,8 @@ impl State for SimDisplay {
             };
 
             let (va, vb) = e.endpoints();
-            let pa = CORNER_POSITIONS[va.0 as usize];
-            let pb = CORNER_POSITIONS[vb.0 as usize];
+            let pa = CORNER_POSITIONS[va.id() as usize];
+            let pb = CORNER_POSITIONS[vb.id() as usize];
             window.draw(
                 &Line::new(pa, pb).with_thickness(width),
                 Background::Col(color),
@@ -137,8 +137,8 @@ impl State for SimDisplay {
 pub(crate) fn distance_to_point(e: EdgeId, p: Vector) -> f32 {
     // Get the edges endpoints
     let (va, vb) = e.endpoints();
-    let a = CORNER_POSITIONS[va.0 as usize];
-    let b = CORNER_POSITIONS[vb.0 as usize];
+    let a = CORNER_POSITIONS[va.id() as usize];
+    let b = CORNER_POSITIONS[vb.id() as usize];
 
     // We pretend that `a` is the origin by subtracting a.
     let a_to_b = b - a;

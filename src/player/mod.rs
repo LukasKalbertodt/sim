@@ -1,4 +1,4 @@
-use crate::{GameState, EdgeId, EdgeState};
+use crate::game::{GameState, EdgeId, EdgeState};
 
 pub(crate) mod human;
 

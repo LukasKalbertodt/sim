@@ -2,7 +2,7 @@ use std::{
     io::{stdout, stdin, Write, BufRead},
 };
 
-use crate::{GameState, EdgeId, VertexId, EdgeState};
+use crate::game::{GameState, EdgeId, VertexId, EdgeState};
 use super::Player;
 
 
