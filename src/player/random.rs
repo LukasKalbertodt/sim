@@ -3,7 +3,8 @@ use rand::{thread_rng, seq::IteratorRandom};
 use crate::game::{GameState, Edge, EdgeState};
 use super::Player;
 
-
+/// A random player which chooses some completely random edge. Even if that
+/// edge will make this player loose the game.
 pub struct DumbRandom;
 
 impl Player for DumbRandom {
@@ -14,11 +15,13 @@ impl Player for DumbRandom {
         Self
     }
 
-    fn get_move(&mut self, state: &GameState) -> Edge {
+    fn next_move(&mut self, state: &GameState) -> Edge {
         random_available_move(state)
     }
 }
 
+/// A random player that always chooses a edge that won't lead to immediate
+/// loss if such an edge is available.
 pub struct Random(EdgeState);
 
 impl Player for Random {
@@ -29,7 +32,7 @@ impl Player for Random {
         Self(color)
     }
 
-    fn get_move(&mut self, state: &GameState) -> Edge {
+    fn next_move(&mut self, state: &GameState) -> Edge {
         // First try to find an edge that won't lead to loosing the game. If
         // that's not possible, just take a random other one.
         Edge::all_edges()

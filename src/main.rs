@@ -16,10 +16,12 @@ mod player;
 
 
 fn main() {
+    // Parse command line parameters and prepare players
     let opt = Opt::from_args();
     let player_red = opt.player_red.computer_player();
     let player_blue = opt.player_blue.computer_player();
 
+    // Start the main loop of the GUI framework
     run_with("Sim", Vector::new(1000, 1000), Settings::default(), || {
         Ok(GuiGame::new(player_red, player_blue))
     });

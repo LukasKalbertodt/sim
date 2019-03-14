@@ -38,6 +38,7 @@ impl GameState {
         }
     }
 
+    /// Sets the state of the given edge to `state`.
     pub fn set_edge(&mut self, id: Edge, state: EdgeState) {
         let bits = state as u8 as u32;
 
@@ -55,6 +56,7 @@ impl GameState {
         self.encoded = (self.encoded & mask) | shifted_bits;
     }
 
+    /// Checks whether setting `edge` to `color` would result in a triangle.
     pub fn would_create_triangle(&self, edge: Edge, color: EdgeState) -> bool {
         let (va, vb) = edge.endpoints();
         Vertex::all_vertices()
@@ -81,7 +83,7 @@ impl EdgeState {
     }
 }
 
-/// ID of an edge (0 to 14 inclusive).
+/// An edge, represented by an id from 0 to 14 inclusive.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Edge(u8);
 
@@ -148,7 +150,7 @@ impl Edge {
 }
 
 
-/// ID of a vertex (0 to 5 inclusive).
+/// A vertex, represented by an ID from 0 to 5 inclusive.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Vertex(u8);
 

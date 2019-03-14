@@ -49,7 +49,8 @@ const CORNER_POSITIONS: [Vector; 6] = [
 ];
 
 
-/// A `quicksilver` state that displays a Sim game state. TODO
+/// A `quicksilver` state which controls the full game (polling players for
+/// moves or getting user input).
 pub(crate) struct GuiGame {
     state: GameState,
     player_red: Option<Box<dyn Player>>,
@@ -58,6 +59,7 @@ pub(crate) struct GuiGame {
     reds_turn: bool,
     game_end: bool,
 
+    /// The edge under the mouse cursor (if any).
     hovered_edge: Option<Edge>,
 }
 
@@ -117,6 +119,10 @@ impl GuiGame {
 
 impl State for GuiGame {
     fn new() -> Result<GuiGame, Error> {
+        // I would say this is fairly bad API design from `quicksilver`. This
+        // `new` method is required by the trait `State`, but it's not used if
+        // one uses `run_with` instead of `run`. There is no sensible way to
+        // implement this method.
         panic!(
             "Called `GuiGame::new`: this method must not be called \
                 (use `run_with` to create this state)"
@@ -126,14 +132,16 @@ impl State for GuiGame {
     // Is called in regular intervals
     fn update(&mut self, _: &mut Window) -> Result<(), Error> {
         if !self.game_end {
+            // Get the active player
             let player = if self.reds_turn {
                 self.player_red.as_mut().map(|b| &mut **b)
             } else {
                 self.player_blue.as_mut().map(|b| &mut **b)
             };
 
+            // If the player is a non-human player, get a move and execute it.
             if let Some(player) = player {
-                let edge = player.get_move(&self.state);
+                let edge = player.next_move(&self.state);
                 self.execute_move(edge);
             }
         }
