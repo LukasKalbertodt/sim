@@ -1,18 +1,16 @@
-//! Everything related to visualising the Sim game state.
+//! A GUI for playing the SIM game.
 
-use std::{
-    sync::mpsc::Receiver,
-};
 use quicksilver::{
     Error,
     geom::{Circle, Line, Vector},
     graphics::{Background, Color},
-    input::{ButtonState, MouseCursor, Key},
+    input::{ButtonState, MouseButton, MouseCursor, Key},
     lifecycle::{Event, State, Window},
 };
 
 
 use crate::{
+    player::Player,
     game::{GameState, EdgeId, EdgeState},
 };
 
@@ -51,43 +49,100 @@ const CORNER_POSITIONS: [Vector; 6] = [
 ];
 
 
-/// A `quicksilver` state that displays a Sim game state.
-pub(crate) struct SimDisplay {
-    last_state: GameState,
-    new_states: Receiver<GameState>,
-    selected_edge: Option<EdgeId>,
+/// A `quicksilver` state that displays a Sim game state. TODO
+pub(crate) struct GuiGame {
+    state: GameState,
+    player_red: Option<Box<dyn Player>>,
+    player_blue: Option<Box<dyn Player>>,
+
+    reds_turn: bool,
+
+    hovered_edge: Option<EdgeId>,
 }
 
-impl SimDisplay {
-    pub(crate) fn new(new_states: Receiver<GameState>) -> Self {
+impl GuiGame {
+    pub(crate) fn new(
+        player_red: Option<Box<dyn Player>>,
+        player_blue: Option<Box<dyn Player>>,
+    ) -> Self {
         Self {
-            last_state: GameState::new(),
-            new_states,
-            selected_edge: None,
+            state: GameState::new(),
+            player_red,
+            player_blue,
+
+            reds_turn: true,
+
+            hovered_edge: None,
         }
+    }
+
+    /// Checks if we are waiting for user input. This is the case when it's a
+    /// `None` player's turn.
+    fn waiting_for_input(&self) -> bool {
+        if self.reds_turn {
+            self.player_red.is_none()
+        } else {
+            self.player_blue.is_none()
+        }
+    }
+
+    /// Returns the color of the current player.
+    fn active_color(&self) -> EdgeState {
+        if self.reds_turn {
+            EdgeState::Red
+        } else {
+            EdgeState::Blue
+        }
+    }
+
+    /// Colors the given edge in the color of the active player.
+    fn execute_move(&mut self, edge: EdgeId) {
+        self.state.set_edge(edge, self.active_color());
+
+        // TODO: check win condition
+
+        self.reds_turn = !self.reds_turn;
     }
 }
 
-impl State for SimDisplay {
-    fn new() -> Result<SimDisplay, Error> {
+impl State for GuiGame {
+    fn new() -> Result<GuiGame, Error> {
         panic!(
-            "Called `SimDisplay::new`: this method must not be called \
+            "Called `GuiGame::new`: this method must not be called \
                 (use `run_with` to create this state)"
         );
     }
 
-    fn draw(&mut self, window: &mut Window) -> Result<(), Error> {
-        while let Ok(state) = self.new_states.try_recv() {
-            self.last_state = state;
+    // Is called in regular intervals
+    fn update(&mut self, _: &mut Window) -> Result<(), Error> {
+        let player = if self.reds_turn {
+            self.player_red.as_mut().map(|b| &mut **b)
+        } else {
+            self.player_blue.as_mut().map(|b| &mut **b)
+        };
+
+        if let Some(player) = player {
+            let edge = player.get_move(&self.state);
+            self.execute_move(edge);
         }
 
+        Ok(())
+    }
+
+    // Is called each frame
+    fn draw(&mut self, window: &mut Window) -> Result<(), Error> {
         window.clear(BACKGROUND_COLOR)?;
 
         // Draw all edges
         for e in EdgeId::all_edges() {
-            let (color, width) = match self.last_state.edge_state(e) {
-                EdgeState::None if self.selected_edge == Some(e) => (SELECTED_COLOR, 5.0),
-                EdgeState::None => (COLOR_GREY, 1.5),
+            let (color, width) = match self.state.edge_state(e) {
+                EdgeState::None => {
+                    if self.hovered_edge == Some(e) && self.waiting_for_input() {
+                        (SELECTED_COLOR, 5.0)
+                    } else {
+                        (COLOR_GREY, 1.5)
+                    }
+                }
                 EdgeState::Red => (COLOR_RED, 4.0),
                 EdgeState::Blue => (COLOR_BLUE, 6.0),
             };
@@ -114,17 +169,28 @@ impl State for SimDisplay {
             Event::Key(Key::Escape, ButtonState::Pressed) => {
                 window.close();
             }
+
             Event::MouseMoved(new_pos) => {
-                self.selected_edge = EdgeId::all_edges()
-                    .filter(|e| self.last_state.edge_state(*e).is_none())
+                self.hovered_edge = EdgeId::all_edges()
+                    .filter(|e| self.state.edge_state(*e).is_none())
                     .find(|e| distance_to_point(*e, *new_pos) < HOVER_DISTANCE);
 
-                let cursor = if self.selected_edge.is_some() {
+                let cursor = if self.hovered_edge.is_some() {
                     MouseCursor::Hand
                 } else {
                     MouseCursor::Default
                 };
                 window.set_cursor(cursor);
+            }
+
+            // If the mouse button is pressed, we are waiting for input and the
+            // mouse hovers over a line, that line is selected.
+            Event::MouseButton(MouseButton::Left, ButtonState::Released)
+                if self.waiting_for_input() =>
+            {
+                if let Some(hovered_edge) = self.hovered_edge {
+                    self.execute_move(hovered_edge);
+                }
             }
             _ => {}
         }
@@ -133,7 +199,8 @@ impl State for SimDisplay {
     }
 }
 
-
+/// Calculates the nearest distance of the point `p` to the line segment
+/// defined by `e`.
 pub(crate) fn distance_to_point(e: EdgeId, p: Vector) -> f32 {
     // Get the edges endpoints
     let (va, vb) = e.endpoints();
