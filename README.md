@@ -1,5 +1,6 @@
-Sim
-===
+# Sim
+[![Build Status](https://img.shields.io/travis/LukasKalbertodt/sim/master.svg)](https://travis-ci.org/LukasKalbertodt/sim)
+
 
 Implementation of [the Sim pencil
 game](https://en.wikipedia.org/wiki/Sim_(pencil_game)).
