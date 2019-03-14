@@ -135,13 +135,17 @@ impl EdgeState {
 }
 
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct EdgeId(u8);
 
 impl EdgeId {
     fn new(v: u8) -> Self {
         assert!(v < 15);
         Self(v)
+    }
+
+    fn all_edges() -> impl Iterator<Item = Self> {
+        (0..15).map(Self::new)
     }
 
     fn between(a: VertexId, b: VertexId) -> Self {
@@ -188,7 +192,7 @@ impl EdgeId {
 }
 
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct VertexId(u8);
 
 impl VertexId {
