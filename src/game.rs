@@ -27,7 +27,7 @@ impl GameState {
     }
 
     /// Returns the state of the given edge.
-    pub fn edge_state(&self, id: EdgeId) -> EdgeState {
+    pub fn edge_state(&self, id: Edge) -> EdgeState {
         // First we shift the bits to the right so that the relevant two bits
         // are the LSBs. Then we mask of the other stuff.
         match (self.encoded >> (id.id() * 2)) & 0b11 {
@@ -38,7 +38,7 @@ impl GameState {
         }
     }
 
-    pub fn set_edge(&mut self, id: EdgeId, state: EdgeState) {
+    pub fn set_edge(&mut self, id: Edge, state: EdgeState) {
         let bits = state as u8 as u32;
 
         // We need to set two bits without touching any other bits. We do this
@@ -55,11 +55,11 @@ impl GameState {
         self.encoded = (self.encoded & mask) | shifted_bits;
     }
 
-    pub fn would_create_triangle(&self, edge: EdgeId, color: EdgeState) -> bool {
+    pub fn would_create_triangle(&self, edge: Edge, color: EdgeState) -> bool {
         let (va, vb) = edge.endpoints();
-        VertexId::all_vertices()
+        Vertex::all_vertices()
             .filter(|&v| v != va && v != vb)
-            .map(|third| (EdgeId::between(va, third), EdgeId::between(vb, third)))
+            .map(|third| (Edge::between(va, third), Edge::between(vb, third)))
             .any(|(ea, eb)| self.edge_state(ea) == color && self.edge_state(eb) == color)
     }
 }
@@ -83,9 +83,9 @@ impl EdgeState {
 
 /// ID of an edge (0 to 14 inclusive).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct EdgeId(u8);
+pub struct Edge(u8);
 
-impl EdgeId {
+impl Edge {
     /// Creates a new ID from the given integer. `v` has to be less than 15!
     pub fn new(v: u8) -> Self {
         assert!(v < 15);
@@ -103,7 +103,7 @@ impl EdgeId {
     }
 
     /// Returns the edge between the two given vertices.
-    pub fn between(a: VertexId, b: VertexId) -> Self {
+    pub fn between(a: Vertex, b: Vertex) -> Self {
         match (a.id(), b.id()) {
             (0, 1) | (1, 0) => Self::new(0),
             (0, 2) | (2, 0) => Self::new(1),
@@ -125,23 +125,23 @@ impl EdgeId {
     }
 
     /// Returns the IDs of the two endpoints of this edge.
-    pub fn endpoints(&self) -> (VertexId, VertexId) {
+    pub fn endpoints(&self) -> (Vertex, Vertex) {
         match self.0 {
-            0 => (VertexId::new(0), VertexId::new(1)),
-            1 => (VertexId::new(0), VertexId::new(2)),
-            2 => (VertexId::new(0), VertexId::new(3)),
-            3 => (VertexId::new(0), VertexId::new(4)),
-            4 => (VertexId::new(0), VertexId::new(5)),
-            5 => (VertexId::new(1), VertexId::new(2)),
-            6 => (VertexId::new(1), VertexId::new(3)),
-            7 => (VertexId::new(1), VertexId::new(4)),
-            8 => (VertexId::new(1), VertexId::new(5)),
-            9 => (VertexId::new(2), VertexId::new(3)),
-            10 => (VertexId::new(2), VertexId::new(4)),
-            11 => (VertexId::new(2), VertexId::new(5)),
-            12 => (VertexId::new(3), VertexId::new(4)),
-            13 => (VertexId::new(3), VertexId::new(5)),
-            14 => (VertexId::new(4), VertexId::new(5)),
+            0 => (Vertex::new(0), Vertex::new(1)),
+            1 => (Vertex::new(0), Vertex::new(2)),
+            2 => (Vertex::new(0), Vertex::new(3)),
+            3 => (Vertex::new(0), Vertex::new(4)),
+            4 => (Vertex::new(0), Vertex::new(5)),
+            5 => (Vertex::new(1), Vertex::new(2)),
+            6 => (Vertex::new(1), Vertex::new(3)),
+            7 => (Vertex::new(1), Vertex::new(4)),
+            8 => (Vertex::new(1), Vertex::new(5)),
+            9 => (Vertex::new(2), Vertex::new(3)),
+            10 => (Vertex::new(2), Vertex::new(4)),
+            11 => (Vertex::new(2), Vertex::new(5)),
+            12 => (Vertex::new(3), Vertex::new(4)),
+            13 => (Vertex::new(3), Vertex::new(5)),
+            14 => (Vertex::new(4), Vertex::new(5)),
             _ => unreachable!(),
         }
     }
@@ -150,9 +150,9 @@ impl EdgeId {
 
 /// ID of a vertex (0 to 5 inclusive).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct VertexId(u8);
+pub struct Vertex(u8);
 
-impl VertexId {
+impl Vertex {
     /// Creates a new ID. `v` has to be less than 6!
     pub fn new(v: u8) -> Self {
         assert!(v < 6);

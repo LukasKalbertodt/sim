@@ -11,7 +11,7 @@ use quicksilver::{
 
 use crate::{
     player::Player,
-    game::{GameState, EdgeId, EdgeState},
+    game::{GameState, Edge, EdgeState},
 };
 
 
@@ -58,7 +58,7 @@ pub(crate) struct GuiGame {
     reds_turn: bool,
     game_end: bool,
 
-    hovered_edge: Option<EdgeId>,
+    hovered_edge: Option<Edge>,
 }
 
 impl GuiGame {
@@ -102,7 +102,7 @@ impl GuiGame {
     }
 
     /// Colors the given edge in the color of the active player.
-    fn execute_move(&mut self, edge: EdgeId) {
+    fn execute_move(&mut self, edge: Edge) {
         // Check if the game ends
         if self.state.would_create_triangle(edge, self.active_color()) {
             let winner = if self.reds_turn { "Blue" } else { "Red" };
@@ -146,7 +146,7 @@ impl State for GuiGame {
         window.clear(BACKGROUND_COLOR)?;
 
         // Draw all edges
-        for e in EdgeId::all_edges() {
+        for e in Edge::all_edges() {
             let (color, width) = match self.state.edge_state(e) {
                 EdgeState::None => {
                     if self.hovered_edge == Some(e) && self.waiting_for_input() {
@@ -183,7 +183,7 @@ impl State for GuiGame {
             }
 
             Event::MouseMoved(new_pos) => {
-                self.hovered_edge = EdgeId::all_edges()
+                self.hovered_edge = Edge::all_edges()
                     .filter(|e| self.state.edge_state(*e).is_none())
                     .find(|e| distance_to_point(*e, *new_pos) < HOVER_DISTANCE);
 
@@ -213,7 +213,7 @@ impl State for GuiGame {
 
 /// Calculates the nearest distance of the point `p` to the line segment
 /// defined by `e`.
-pub(crate) fn distance_to_point(e: EdgeId, p: Vector) -> f32 {
+pub(crate) fn distance_to_point(e: Edge, p: Vector) -> f32 {
     // Get the edges endpoints
     let (va, vb) = e.endpoints();
     let a = CORNER_POSITIONS[va.id() as usize];
