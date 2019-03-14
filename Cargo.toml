@@ -5,9 +5,14 @@ authors = ["Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = "2.32"
 rand = "0.6"
+structopt = "0.2"
 
 [dependencies.quicksilver]
 version = "0.3"
 default-features = false
 features = ["fonts"]
+
+[replace]
+"html2runes:1.0.0" = { git = "https://github.com/kuviman/html2runes" }
