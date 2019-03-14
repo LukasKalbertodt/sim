@@ -54,33 +54,13 @@ impl GameState {
         let shifted_bits = bits << (id.id() * 2);
         self.encoded = (self.encoded & mask) | shifted_bits;
     }
-/*
-    fn would_create_triangle(&self, edge: EdgeId, state: EdgeState) -> bool {
-        fn pair(a: u8, b: u8) -> (EdgeId, EdgeId) {
-            (EdgeId::new(a), EdgeId::new(b))
-        }
 
-        const TRIANGLES: [[(EdgeId, EdgeId); 4]; 15] = [
-            [pair(5, 1), pair(8, 4), pair(7, 3), pair(6, 2)],
-            [pair(0, 5), pair(3, 10), pair(11, 4), pair(9, 2)],
-            [pair(0, 6), pair(3, 12), pair(4, 13), pair(9, 1)],
-            [pair(12, 2), pair(4, 14), pair(1, 10), pair(7, 0)],
-            [pair(13, 2), pair(11, 1), pair(8, 0), pair(14, 3)],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-            [pair(), pair(), pair(), pair()],
-        ];
-    }
-*/
-    pub fn finished(&self) -> bool {
-        false
+    pub fn would_create_triangle(&self, edge: EdgeId, color: EdgeState) -> bool {
+        let (va, vb) = edge.endpoints();
+        VertexId::all_vertices()
+            .filter(|&v| v != va && v != vb)
+            .map(|third| (EdgeId::between(va, third), EdgeId::between(vb, third)))
+            .any(|(ea, eb)| self.edge_state(ea) == color && self.edge_state(eb) == color)
     }
 }
 
@@ -182,5 +162,9 @@ impl VertexId {
     /// Returns the inner ID.
     pub fn id(&self) -> u8 {
         self.0
+    }
+
+    pub fn all_vertices() -> impl Iterator<Item = Self> {
+        (0..6).map(Self::new)
     }
 }
