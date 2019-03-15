@@ -1,8 +1,14 @@
+#[macro_use]
+extern crate stdweb;
+
+use std::panic;
+
 use quicksilver::{
     geom::Vector,
     lifecycle::{Settings, run_with},
 };
 use structopt::StructOpt;
+// use stdweb::console;
 
 use crate::{
     game::EdgeState,
@@ -15,7 +21,18 @@ mod gui;
 mod player;
 
 
+#[cfg(target_arch = "wasm32")]
+pub fn panic_hook(info: &panic::PanicInfo) {
+    console!(log, "Panic: {}", info.to_string());
+}
+
+
 fn main() {
+    console!(log, "heeeyho");
+
+    #[cfg(target_arch = "wasm32")]
+    panic::set_hook(Box::new(panic_hook));
+
     // Parse command line parameters and prepare players
     let opt = Opt::from_args();
     let player_red = opt.player_red.computer_player();

@@ -8,6 +8,8 @@ edition = "2018"
 clap = "2.32"
 rand = "0.6"
 structopt = "0.2"
+console_error_panic_hook = "0.1"
+stdweb = "0.4"
 
 [dependencies.quicksilver]
 version = "0.3"

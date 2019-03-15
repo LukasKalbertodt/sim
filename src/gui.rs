@@ -63,8 +63,30 @@ pub(crate) struct GuiGame {
     /// The edge under the mouse cursor (if any).
     hovered_edge: Option<Edge>,
 
-    player_red_text: Image,
-    player_blue_text: Image,
+    #[cfg(not(target_arch = "wasm32"))]
+    text: TextCache,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+struct TextCache {
+    player_red_turn: Image,
+    player_blue_turn: Image,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl TextCache {
+    fn new() -> Self {
+        let font = Font::load("FiraSans-Light.ttf").wait().expect("failed to load font");
+        let player_red_turn = font.render("Player Red's turn", &FontStyle::new(64.0, COLOR_RED))
+            .expect("failed to render text");
+        let player_blue_turn = font.render("Player Blue's turn", &FontStyle::new(64.0, COLOR_BLUE))
+            .expect("failed to render text");
+
+        Self {
+            player_red_turn,
+            player_blue_turn,
+        }
+    }
 }
 
 impl GuiGame {
@@ -72,12 +94,6 @@ impl GuiGame {
         player_red: Option<Box<dyn Player>>,
         player_blue: Option<Box<dyn Player>>,
     ) -> Self {
-        // Prepare text
-        let font = Font::load("FiraSans-Light.ttf").wait().expect("failed to load font");
-        let player_red_text = font.render("Player Red's turn", &FontStyle::new(64.0, COLOR_RED))
-            .expect("failed to render text");
-        let player_blue_text = font.render("Player Blue's turn", &FontStyle::new(64.0, COLOR_BLUE))
-            .expect("failed to render text");
 
         Self {
             state: GameState::new(),
@@ -88,8 +104,9 @@ impl GuiGame {
             game_end: false,
 
             hovered_edge: None,
-            player_red_text,
-            player_blue_text,
+
+            #[cfg(not(target_arch = "wasm32"))]
+            text: TextCache::new(),
         }
     }
 
@@ -166,15 +183,18 @@ impl State for GuiGame {
     fn draw(&mut self, window: &mut Window) -> Result<(), Error> {
         window.clear(BACKGROUND_COLOR)?;
 
-        let text = if self.reds_turn {
-            &self.player_red_text
-        } else {
-            &self.player_blue_text
-        };
-        window.draw(
-            &text.area().with_center((500, 50)),
-            Background::Img(&text),
-        );
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let text = if self.reds_turn {
+                &self.player_red_text
+            } else {
+                &self.player_blue_text
+            };
+            window.draw(
+                &text.area().with_center((500, 50)),
+                Background::Img(&text),
+            );
+        }
 
         // Draw all edges
         for e in Edge::all_edges() {
