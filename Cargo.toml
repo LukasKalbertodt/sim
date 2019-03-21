@@ -13,6 +13,3 @@ structopt = "0.2"
 version = "0.3"
 default-features = false
 features = ["fonts"]
-
-[replace]
-"html2runes:1.0.0" = { git = "https://github.com/kuviman/html2runes" }
