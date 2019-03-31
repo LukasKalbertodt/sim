@@ -55,17 +55,21 @@ impl MiniMax {
         if pre_depth == 0 {
             let startmove = Random::new(me).next_move(state);
             if (me == EdgeState::Blue) {
-                println!("Blue randomly choses starting move {}, expecting to lose", startmove.id());
+                println!("Blue randomly choses starting move {}, expecting to lose", 
+                    startmove.id());
             } else {
-                println!("Red randomly choses starting move {}, expecting to lose", startmove.id());
+                println!("Red randomly choses starting move {}, expecting to lose", 
+                    startmove.id());
             }
             return startmove;
         } else if pre_depth == 1 { // second moves always win (?)
             let secondmove = Random::new(me).next_move(state);
             if (me == EdgeState::Blue) {
-                println!("Blue thinks: second move always wins, chooses randomly: {}", secondmove.id());
+                println!("Blue thinks: second move always wins, chooses randomly: {}", 
+                    secondmove.id());
             } else {
-                println!("Red thinks: second move always wins, chooses randomly: {}", secondmove.id());
+                println!("Red thinks: second move always wins, chooses randomly: {}", 
+                    secondmove.id());
             }
             return secondmove;
         }
@@ -73,7 +77,8 @@ impl MiniMax {
         // Using this to track our progression through game rounds/tree depth
         let mut depth = pre_depth;
 
-        // use an array to represent the move sequence (this is basically our tree thats being expanded)
+        // use an array to represent the move sequence (this is basically our tree 
+        // thats being expanded)
         let mut move_sequence: [u8; 15] = [0; 15];
 
         // using this to clearly represent the move thats currently being considered
@@ -86,19 +91,23 @@ impl MiniMax {
         // Using this to signal that we want to keep looking for more moves on the current level
         let mut samelevel: bool = false;
         
-        // This reflects the nature of the minimax problem, switching rounds means the players change
-        // and aim to achieve a minimization/maximization (from the perspective of "me" player)
-        // In this case, as theres only 2 possible game outcomes (win, lose) we can reduce it to bools.
+        // This reflects the nature of the minimax problem, switching rounds means the players 
+        // change and aim to achieve a minimization/maximization (from the perspective of "me" 
+        // player)
+        // In this case, as theres only 2 possible game outcomes (win, lose) we can reduce it
+        // to bools.
         // "True": downwards a branch, "Me"-Player can force a win
         // "False": downwards a branch, "Other"-Player can force a win
-        // "Me"-Player estimations will be initialized to "false" and then choose the maximum of next lowest 
-        // layer results (downgoing branches).
-        // "Other"-Player estimations will be initialized to "true" and then choose the maximum of next lowest 
-        // layer results (downgoing branches).
-        // Can replace minimization by "and"-ing the next lowest layer minimax result into the current layer
-        // Can replace maximization by "or"-ing the next lowest layer minimax result into the current layer.
-        // We can skip branches (in an alpha/beta-pruning sort of way) on estimation changes from
-        // true -> false (definite minimum) and from false -> true (definite maximum)
+        // "Me"-Player estimations will be initialized to "false" and then choose the maximum 
+        // of next lowest layer results (downgoing branches).
+        // "Other"-Player estimations will be initialized to "true" and then choose the maximum 
+        // of next lowest layer results (downgoing branches).
+        // Can replace minimization by "and"-ing the next lowest layer minimax result into the 
+        // current layer
+        // Can replace maximization by "or"-ing the next lowest layer minimax result into the 
+        // current layer.
+        // We can skip branches (in an alpha/beta-pruning sort of way) on estimation changes 
+        // from true -> false (definite minimum) and from false -> true (definite maximum)
         let mut minimax: [bool; 15] = [true; 15];
 
         // Track amount of expanded positions
@@ -128,7 +137,8 @@ impl MiniMax {
                 } 
             }
 
-            // Move we are currently considering is saved in its respective slot in the move sequence
+            // Move we are currently considering is saved in its respective slot in the 
+            // move sequence
             current_move = move_sequence[depth];
 
             // If we just ascended from a deeper tree layer, we reset the move counter on 
@@ -170,10 +180,10 @@ impl MiniMax {
                 if depth == pre_depth {
                     let randmove = Random::new(me).next_move(state);
                     if (me == EdgeState::Blue) {
-                        println!("Blue doesnt know a winning move, choses randomly: {} (at depth {})", 
+                        println!("Blue knows no winning move, choses randomly: {} (at depth {})", 
                             randmove.id(), pre_depth);
                     } else {
-                        println!("Red doesnt know a winning move, choses randomly: {} (at depth {})", 
+                        println!("Red knows no winning move, choses randomly: {} (at depth {})", 
                             randmove.id(), pre_depth);
                     }
                     // println!("Expanded positions {}", counter); 
@@ -241,4 +251,3 @@ impl Player for MiniMax {
     }
 
 }
-
