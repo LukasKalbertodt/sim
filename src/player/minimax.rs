@@ -54,7 +54,7 @@ impl MiniMax {
         // First moves are all equal
         if pre_depth == 0 {
             let startmove = Random::new(me).next_move(state);
-            if (me == EdgeState::Blue) {
+            if me == EdgeState::Blue {
                 println!("Blue randomly choses starting move {}, expecting to lose",
                     startmove.id());
             } else {
@@ -64,7 +64,7 @@ impl MiniMax {
             return startmove;
         } else if pre_depth == 1 { // second moves always win (?)
             let secondmove = Random::new(me).next_move(state);
-            if (me == EdgeState::Blue) {
+            if me == EdgeState::Blue {
                 println!("Blue thinks: second move always wins, chooses randomly: {}",
                     secondmove.id());
             } else {
@@ -82,7 +82,7 @@ impl MiniMax {
         let mut move_sequence: [u8; 15] = [0; 15];
 
         // using this to clearly represent the move thats currently being considered
-        let mut current_move: u8 = 0;
+        let mut current_move: u8;
 
         // using this to signal that we have just ascended in the tree (not descended)
         // and thus need to look for the next branch - or ascend further
@@ -111,7 +111,7 @@ impl MiniMax {
         let mut minimax: [bool; 15] = [true; 15];
 
         // Track amount of expanded positions
-        let mut counter: u64 = 0;
+        // let mut counter: u64 = 0;
 
         // now descend depth-first through the move sequence tree and let the leaf results
         // propagate upwards our minimax structure
@@ -124,8 +124,8 @@ impl MiniMax {
             // If we just ascended back to our starting depth, we might be done already
             if depth == pre_depth && ascend {
                 // but only if we are sure we found a winning move
-                if (minimax[depth] == true) {
-                    if (me == EdgeState::Blue) {
+                if minimax[depth] == true {
+                    if me == EdgeState::Blue {
                         println!("Blue knows the winning move: {} (at depth {})",
                             move_sequence[depth], pre_depth);
                     } else {
@@ -154,7 +154,7 @@ impl MiniMax {
                 current_move += 1;
                 samelevel = false;
             } else { // if we descended, we reinit result tracking for this layer
-                counter += 1;
+                // counter += 1;
                 move_sequence[depth] = 0;
                 if acting == me {
                     minimax[depth] = false;
@@ -179,7 +179,7 @@ impl MiniMax {
                 // If we are out of moves at our starting depth, we didnt find a winning move
                 if depth == pre_depth {
                     let randmove = Random::new(me).next_move(state);
-                    if (me == EdgeState::Blue) {
+                    if me == EdgeState::Blue {
                         println!("Blue knows no winning move, choses randomly: {} (at depth {})",
                             randmove.id(), pre_depth);
                     } else {
@@ -205,7 +205,7 @@ impl MiniMax {
                 move_sequence[depth] = 0;
                 encoded_moves = encoded_moves | (1 << current_move);
                 // the result from this layer is used for the next higher layer in a minimax way
-                if (acting == me) {
+                if acting == me {
                     minimax[depth-1] = minimax[depth-1] && minimax[depth];
                 } else {
                     minimax[depth-1] = minimax[depth-1] || minimax[depth];
