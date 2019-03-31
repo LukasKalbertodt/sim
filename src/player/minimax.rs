@@ -146,16 +146,18 @@ impl MiniMax {
             // If we just ascended back to our starting depth, we might be done already
             if depth == pre_depth && ascend {
                 // but only if we are sure we found a winning move
-                if minimax[depth] == true {
+                if minimax[depth] {
                     if me == EdgeState::Blue {
                         println!(
                             "Blue knows the winning move: {} (at depth {})",
-                            move_sequence[depth], pre_depth
+                            move_sequence[depth], 
+                            pre_depth
                         );
                     } else {
                         println!(
                             "Red knows the winning move: {} (at depth {})",
-                            move_sequence[depth], pre_depth
+                            move_sequence[depth], 
+                            pre_depth
                         );
                     }
                     // println!("Expanded positions {}", counter);
@@ -176,7 +178,7 @@ impl MiniMax {
                 state.set_edge(edges[current_move as usize], EdgeState::None);
                 current_move += 1;
                 ascend = false;
-            } else if samelevel == true {
+            } else if samelevel {
                 // If at same level as before, choose next move
                 current_move += 1;
                 samelevel = false;
