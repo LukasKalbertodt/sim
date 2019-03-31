@@ -150,13 +150,13 @@ impl MiniMax {
                     if me == EdgeState::Blue {
                         println!(
                             "Blue knows the winning move: {} (at depth {})",
-                            move_sequence[depth], 
+                            move_sequence[depth],
                             pre_depth
                         );
                     } else {
                         println!(
                             "Red knows the winning move: {} (at depth {})",
-                            move_sequence[depth], 
+                            move_sequence[depth],
                             pre_depth
                         );
                     }
