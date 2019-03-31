@@ -7,7 +7,7 @@ use structopt::StructOpt;
 use crate::{
     game::EdgeState,
     gui::GuiGame,
-    player::{Player, DumbRandom, Random},
+    player::{Player, DumbRandom, Random, MiniMax},
 };
 
 mod game;
@@ -47,6 +47,7 @@ impl PlayerInput {
             "human" => Ok(PlayerInput::Human),
             "random" => Ok(PlayerInput::Other(Box::new(Random::new(color)))),
             "dumb_random" => Ok(PlayerInput::Other(Box::new(DumbRandom::new(color)))),
+            "minimax" => Ok(PlayerInput::Other(Box::new(MiniMax::new(color)))),
             _ => Err(format!(
                 "invalid player '{}' (valid options: 'human', 'random', 'dumb_random')",
                 input,
