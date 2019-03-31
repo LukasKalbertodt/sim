@@ -45,7 +45,7 @@ impl MiniMax {
 
         // Remember at which depth we started off, so when ascending upwards in the tree
         // we know where to stop
-        let pre_depth: usize = 15 - encoded_moves.count_ones() as usize;
+        let pre_depth = 15 - encoded_moves.count_ones() as usize;
 
         // First moves are all equal
         if pre_depth == 0 {
@@ -102,17 +102,17 @@ impl MiniMax {
 
         // Using an array to represent the move sequence (this is basically our tree
         // thats being expanded)
-        let mut move_sequence: [u8; 15] = [0; 15];
+        let mut move_sequence = [0; 15];
 
         // Using this to clearly represent the move thats currently being considered
-        let mut current_move: u8;
+        let mut current_move;
 
         // Using this to signal that we have just ascended in the tree (not descended)
         // and thus need to look for the next branch - or ascend further
-        let mut ascend: bool = false;
+        let mut ascend = false;
 
         // Using this to signal that we want to keep looking for more moves on the current level
-        let mut samelevel: bool = false;
+        let mut samelevel = false;
 
         // This reflects the nature of the minimax problem, switching rounds means the players
         // change and aim to achieve a minimization/maximization (from the perspective of "me"
@@ -131,7 +131,7 @@ impl MiniMax {
         // current layer.
         // We can skip branches (in an alpha/beta-pruning sort of way) on estimation changes
         // from true -> false (definite minimum) and from false -> true (definite maximum)
-        let mut minimax: [bool; 15] = [true; 15];
+        let mut minimax = [true; 15];
 
         // Track amount of expanded positions
         // let mut counter: u64 = 0;
