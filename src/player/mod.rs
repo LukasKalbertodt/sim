@@ -1,9 +1,10 @@
 use crate::game::{GameState, Edge, EdgeState};
 
 mod random;
+mod minimax;
 
 pub use random::{Random, DumbRandom};
-
+pub use minimax::{MiniMax};
 
 /// The interface for all non-human players.
 pub(crate) trait Player {
